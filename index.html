@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>모라는거예요 – 음파 파도 패턴 Wingdings 시트</title>
+<style>
+/* ==== 폰트 ==== */
+@font-face{
+  font-family:"OnulDanjo";
+  src:url("./OnulDanjo-Regular.otf") format("opentype");
+  font-display:swap;
+}
+@font-face{
+  font-family:"WingdingsCustom";
+  src:url("./Wingdings.ttf") format("truetype");
+  font-display:swap;
+}
+
+/* ==== 베이스 ==== */
+html,body{
+  height:100%; margin:0; background:#000; overflow:hidden;
+  font-family:"OnulDanjo", Arial, sans-serif; color:#000;
+}
+
+/* ==== 줌인아웃 배경 ==== */
+.bg-rings{
+  position:fixed; inset:0; display:flex; justify-content:center; align-items:center;
+  z-index:0; pointer-events:none;
+}
+.bg-rings svg{ width:100vmin; height:100vmin; overflow:visible; }
+.ring{ transform-box:fill-box; transform-origin:50% 50%; }
+@keyframes spinZoom-cw{0%{transform:rotate(0) scale(1)}50%{transform:rotate(180deg) scale(1.5)}100%{transform:rotate(360deg) scale(1)}}
+@keyframes spinZoom-ccw{0%{transform:rotate(0) scale(1)}50%{transform:rotate(-180deg) scale(1.5)}100%{transform:rotate(-360deg) scale(1)}}
+.r1{animation:spinZoom-cw 12s ease-in-out infinite;}
+.r2{animation:spinZoom-ccw 10s ease-in-out infinite;}
+.r3{animation:spinZoom-cw 8s ease-in-out infinite;}
+.r4{animation:spinZoom-ccw 6s ease-in-out infinite;}
+
+/* ==== 시트 ==== */
+.sheet-wrap{
+  position:absolute; top:50%; left:50%; transform:translate(-50%,-50%);
+  z-index:2; overflow:auto; max-height:85vh; border:1px solid #000; background:transparent;
+  scroll-behavior:smooth;
+}
+/* 스크롤 최소 노출 */
+.sheet-wrap::-webkit-scrollbar{width:6px;height:6px}
+.sheet-wrap::-webkit-scrollbar-thumb{background:rgba(255,255,255,.25);border-radius:4px;transition:background .2s}
+.sheet-wrap::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,.5)}
+.sheet-wrap::-webkit-scrollbar-track{background:transparent}
+.sheet-wrap{scrollbar-width:thin; scrollbar-color:rgba(255,255,255,.25) transparent;}
+
+table.sheet{
+  border-collapse:collapse; border:1px solid #000; table-layout:fixed; font-size:13px;
+  font-family:"OnulDanjo","Noto Sans KR",sans-serif; color:#000;
+}
+.sheet th,.sheet td{
+  border:1px solid #000; height:28px; text-align:center; vertical-align:middle; transition:background .25s ease;
+  font-weight:400; line-height:1.35; letter-spacing:.01em;
+}
+.sheet th:first-child,.sheet td:first-child{
+  width:140px; text-align:left; padding-left:8px; font-weight:500; letter-spacing:0;
+}
+.sheet th:not(:first-child),.sheet td:not(:first-child){ width:38px; }
+
+/* ==== 자음(윙딩스) ==== */
+.icon{
+  display:inline-flex; justify-content:center; align-items:center;
+  width:22px; height:22px; border:1.4px dotted #000; border-radius:50%;
+  font-family:"WingdingsCustom","Wingdings",sans-serif; font-size:18px; line-height:1; user-select:none;
+  opacity:0; transform:scale(.5); transition:all .4s ease;
+}
+.icon.show{ opacity:1; transform:scale(1); }
+
+/* ==== 모음(동일 원형/크기) ==== */
+.vowel{
+  display:inline-block; background:#000; border-radius:50%;
+  width:12px; height:12px; transform:none; opacity:0; transition:opacity .25s ease;
+}
+.vowel.show{ opacity:1; }
+
+/* ==== 버튼/힌트 ==== */
+.print-bar{position:fixed; left:12px; bottom:12px; z-index:3; display:flex; gap:8px;}
+.btn{cursor:pointer; background:#fff; color:#000; border-radius:8px; padding:6px 10px; border:none; font-size:12px;}
+.hint{position:fixed; left:12px; bottom:48px; font-size:12px; color:#ccc; z-index:3}
+
+/* ==== 설명 버튼 & 팝업 ==== */
+.info-btn{
+  position:fixed; right:16px; bottom:16px; z-index:5;
+  background:#fff; color:#000; border:none; border-radius:20px; padding:6px 12px; font-size:13px;
+  cursor:pointer; opacity:.8; transition:opacity .2s ease;
+}
+.info-btn:hover{opacity:1}
+.info-modal{
+  position:fixed; inset:0; background:rgba(0,0,0,.55);
+  display:none; justify-content:center; align-items:center; z-index:10;
+}
+.info-content{
+  position:relative; background:#fff; color:#111;
+  max-width:250x; padding:24px 28px; border-radius:16px; box-shadow:0 8px 20px rgba(0,0,0,.25);
+  font-family:"OnulDanjo","Noto Sans KR",sans-serif; line-height:1.6; animation:fadeIn .4s ease;
+}
+.info-content h2{margin:0 0 8px; font-size:18px; font-weight:600}
+.info-content p{font-size:13.5px; margin:0}
+.info-content .close{position:absolute; right:22px; top:18px; font-size:20px; cursor:pointer; color:#333}
+@keyframes fadeIn{from{opacity:0; transform:translateY(10px)}to{opacity:1; transform:none}}
+
+/* ==== 인쇄/PDF ==== */
+@media print{
+  @page{ size:A4 portrait; margin:10mm }
+  *{-webkit-print-color-adjust:exact; print-color-adjust:exact}
+  .bg-rings,.print-bar,.hint,.info-btn,.info-modal{ display:none !important }
+  html,body{ background:#fff !important; color:#000 !important; overflow:visible !important; height:auto }
+  .sheet-wrap{ position:static !important; transform:none !important; max-height:none !important; overflow:visible !important; width:100% !important; border:0 }
+  table.sheet{ width:100% !important; table-layout:fixed; font-size:10pt; border:1px solid #000; color:#000 }
+  .sheet th,.sheet td{ border:1px solid #000; height:8mm; padding:0 }
+  .icon,.vowel{ opacity:1 !important; transform:none !important }
+}
+</style>
+</head>
+<body>
+
+<!-- ==== 배경 ==== -->
+<div class="bg-rings">
+  <svg viewBox="0 0 1000 1000" preserveAspectRatio="xMidYMid meet">
+    <circle class="ring r1" cx="500" cy="500" r="500" fill="none" stroke="#12b7ff" stroke-width="260"/>
+    <circle class="ring r2" cx="500" cy="500" r="370" fill="none" stroke="#e31d93" stroke-width="240"/>
+    <circle class="ring r3" cx="500" cy="500" r="250" fill="none" stroke="#078f47" stroke-width="220"/>
+    <circle class="ring r4" cx="500" cy="500" r="130" fill="none" stroke="#ffe933" stroke-width="200"/>
+    <circle cx="500" cy="500" r="70" fill="#000"/>
+  </svg>
+</div>
+
+<!-- ==== 시트 ==== -->
+<div class="sheet-wrap" id="sheetWrap">
+  <table class="sheet" id="sheet">
+    <thead><tr><th>NAME</th></tr></thead>
+    <tbody id="sheetBody"></tbody>
+  </table>
+</div>
+
+<div class="hint" id="hint">🎧 활성화</div>
+
+<!-- ==== 컨트롤 ==== -->
+<div class="print-bar">
+  <button id="startBtn" class="btn">🎙</button>
+  <button id="printBtn" class="btn">📄PDF</button>
+</div>
+
+<!-- ==== 설명 버튼 & 팝업 ==== -->
+<button id="infoBtn" class="info-btn">ℹ︎ 설명</button>
+<div id="infoModal" class="info-modal">
+  <div class="info-content">
+    <span class="close">&times;</span>
+    <p>
+        이름들의 생김새는 완벽히 동등한 것이 없는데 어딘가 가만히 바라보고 있으면 모두 하나로 느껴진다.
+        <p>
+        ⑴	이름은 서로 상생되어야 한다는 것.
+        ⑵	이름의 첫글자, 중간 글자, 끝글자는 연결돼 있다. 
+        ⑶	소리는 주변에 영향을 준다. 좋은 이름을 부를 수록 그 사람의 운수는 좋아지고, 나쁜 이름을 부를 수록 그 사람의 운수는 나빠진다.
+        </p>
+        <p>
+        소리 내어 공기를 진동시켜야만 효과가 나타난다.
+        다시 말해 이름을 불러야만 그 효력이 생긴다는 뜻이다.
+        이름이 단순한 표식이 아니라, 발화되는 순간에 비로소 생명력을 얻는 언어적 존재임을 시사한다.
+    </p>
+    <p>
+        호명을 통해 호출된 이름들은 화면 속 시트 위에 하나씩 기록되고, 그 이름의 소리와 리듬은 울림이 된다.
+        불완전한 호명과 반복되는 부름 속에서, 나와 너, 이름들의 흔적을 기록한다.
+    </p>
+<p>
+        이름을 호명하시오.
+    </p>
+    </p>
+  </div>
+</div>
+
+<script>
+/* ===== 작품 설명 팝업 ===== */
+const infoBtn=document.getElementById('infoBtn');
+const infoModal=document.getElementById('infoModal');
+const close=document.querySelector('.info-content .close');
+infoBtn.onclick=()=>{infoModal.style.display='flex'};
+close.onclick=()=>{infoModal.style.display='none'};
+infoModal.onclick=e=>{ if(e.target===infoModal) infoModal.style.display='none' };
+
+/* ===== 시트 컬럼: 시작 시 1~18 미리 노출 ===== */
+const MAX_NAME_LEN=6, MAX_PARTS_PER_SYLL=3, MAX_COLS=MAX_NAME_LEN*MAX_PARTS_PER_SYLL;
+
+const MAP={"ㄱ":"1","ㄴ":"2","ㄷ":"9","ㄹ":"0","ㅁ":"9","ㅂ":"0","ㅅ":"7","ㅇ":"8","ㅈ":"5","ㅊ":"6","ㅋ":"4","ㅌ":"3","ㅍ":"5","ㅎ":"6"};
+const RING_COLORS=["#12b7ff","#e31d93","#078f47","#ffe933"];
+const sheet=document.getElementById('sheet');
+const sheetBody=document.getElementById('sheetBody');
+const hint=document.getElementById('hint');
+
+function initSheetColumns(n){
+  const header=sheet.querySelector('thead tr');
+  const cur=header.children.length-1;
+  for(let i=cur+1;i<=n;i++){
+    const th=document.createElement('th'); th.textContent=i; header.appendChild(th);
+  }
+}
+
+function ensureColumns(count){
+  const header=sheet.querySelector('thead tr');
+  const current=header.children.length-1;
+  if(count>current){
+    for(let i=current+1;i<=count;i++){
+      const th=document.createElement('th'); th.textContent=i; header.appendChild(th);
+      sheetBody.querySelectorAll('tr').forEach(r=>r.appendChild(document.createElement('td')));
+    }
+  }
+}
+
+/* ===== 한글 완전 분해 ===== */
+function decomposeHangul(ch){
+  const base=0xAC00;
+  const chos="ㄱㄲㄴㄷㄸㄹㅁㅂㅃㅅㅆㅇㅈㅉㅊㅋㅌㅍㅎ";
+  const jungs="ㅏㅐㅑㅒㅓㅔㅕㅖㅗㅘㅙㅚㅛㅜㅝㅞㅟㅠㅡㅢㅣ";
+  const jongs=["","ㄱ","ㄲ","ㄳ","ㄴ","ㄵ","ㄶ","ㄷ","ㄹ","ㄺ","ㄻ","ㄼ","ㄽ","ㄾ","ㄿ","ㅀ","ㅁ","ㅂ","ㅄ","ㅅ","ㅆ","ㅇ","ㅈ","ㅊ","ㅋ","ㅌ","ㅍ","ㅎ"];
+  const code=ch.charCodeAt(0)-base;
+  if(code<0||code>11171) return [ch];
+  const cho=Math.floor(code/588);
+  const jung=Math.floor((code%588)/28);
+  const jong=code%28;
+  const arr=[chos[cho], jungs[jung]];
+  if(jongs[jong]) arr.push(jongs[jong]);
+  return arr;
+}
+
+/* ===== 모음 도형 생성 (통일) ===== */
+function createVowelShape(){
+  const div=document.createElement('div');
+  div.className='vowel';
+  return div;
+}
+
+/* ===== 행 추가 ===== */
+async function addRow(name){
+  const chars=[...name];
+  const parts=[]; chars.forEach(ch=>parts.push(...decomposeHangul(ch)));
+
+  ensureColumns(parts.length);
+
+  const tr=document.createElement('tr');
+  const tdName=document.createElement('td'); tdName.textContent=name; tr.appendChild(tdName);
+
+  // 현재 헤더 수만큼 빈 칸 먼저 생성
+  const numericCols=sheet.querySelector('thead tr').children.length-1;
+  for(let i=0;i<numericCols;i++) tr.appendChild(document.createElement('td'));
+
+  sheetBody.appendChild(tr);
+
+  // 이름칸 인터랙션
+  tdName.addEventListener('mouseenter',()=>{
+    const c=RING_COLORS[Math.floor(Math.random()*RING_COLORS.length)];
+    tdName.style.background=c; tdName.style.color="#000";
+  });
+  tdName.addEventListener('mouseleave',()=>{
+    tdName.style.background="transparent"; tdName.style.color="#000";
+  });
+  tdName.addEventListener('click',()=>waveRow(tr,80,true));
+
+  // 음소 채우기 (앞에서부터)
+  const tds=[...tr.querySelectorAll('td')].slice(1);
+  for(let i=0;i<parts.length && i<tds.length;i++){
+    const td=tds[i];
+    setTimeout(()=>{
+      const c=RING_COLORS[Math.floor(Math.random()*RING_COLORS.length)];
+      td.style.background=c;
+      if(MAP[parts[i]]){
+        const d=document.createElement('div');
+        d.className='icon'; d.textContent=MAP[parts[i]];
+        td.appendChild(d); setTimeout(()=>d.classList.add('show'),50);
+      }else if(/[ㅏ-ㅣ]/.test(parts[i])){
+        const v=createVowelShape(); td.appendChild(v); setTimeout(()=>v.classList.add('show'),50);
+      }
+      setTimeout(()=>td.style.background='transparent',600);
+    }, i*180);
+  }
+  tr.scrollIntoView({behavior:'smooth',block:'end'});
+}
+
+/* ===== 파도 애니메이션 ===== */
+function waveRow(tr, step=100, soft=false){
+  const tds=[...tr.querySelectorAll('td')];
+  if(tds.length<=1) return;
+  const color=RING_COLORS[Math.floor(Math.random()*RING_COLORS.length)];
+  const cells=tds.slice(1);
+  const colCount=cells.length;
+  const startIdx=soft?0:Math.floor(Math.random()*colCount);
+  for(let i=0;i<colCount;i++){
+    const idx=(startIdx+i)%colCount;
+    const td=cells[idx];
+    setTimeout(()=>{
+      td.style.background=color;
+      setTimeout(()=>td.style.background='transparent', soft?280:160);
+    }, i*step);
+  }
+}
+function waveSheetFromColumn(startCol=1, step=80){
+  const rows=[...sheetBody.querySelectorAll('tr')];
+  if(rows.length===0) return;
+  const maxCols=sheet.querySelector('thead tr').children.length-1;
+  const color=RING_COLORS[Math.floor(Math.random()*RING_COLORS.length)];
+  for(let col=startCol; col<=maxCols; col++){
+    setTimeout(()=>{
+      rows.forEach(r=>{
+        const tds=r.querySelectorAll('td');
+        if(tds.length>col && Math.random()<0.5){
+          const td=tds[col];
+          td.style.background=color;
+          setTimeout(()=>td.style.background='transparent', 150+Math.random()*150);
+        }
+      });
+    }, (col-startCol)*step);
+  }
+}
+
+/* ===== 음성 인식 (이름 감지) ===== */
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+let recog;
+function startSR(){
+  if(!SR){ console.warn('SpeechRecognition 미지원'); return; }
+  recog=new SR();
+  recog.lang='ko-KR'; recog.continuous=true; recog.interimResults=true;
+  recog.onresult=(e)=>{
+    for(let i=e.resultIndex;i<e.results.length;i++){
+      const res=e.results[i]; if(!res.isFinal) continue;
+      const raw=res[0].transcript.trim();
+      const text=raw.replace(/\s+/g,'');
+      const rx=/([가-힣]{1,6})(?:이|가|를|을|은|는)?(아|야)/g;
+      let m, names=[];
+      while((m=rx.exec(text))!==null){ if(m[1]) names.push(m[1]); }
+      names.forEach(n=>addRow(n));
+    }
+  };
+  recog.onerror=e=>console.warn('speech error', e.error);
+  recog.onend=()=>{ try{recog.start();}catch(_){ /* iOS 등 재시작 제한 시 무시 */ } };
+  recog.start();
+}
+
+/* ===== 마이크 분석 (소음 바닥 자동 캘리브레이션 + 파도 트리거) ===== */
+let audioCtx, analyser, timeData, micStream;
+let noiseFloor=0.02, lastTrigger=0;
+
+function rmsFromTimeData(buf){
+  let sum=0;
+  for(let i=0;i<buf.length;i++){ const v=(buf[i]-128)/128; sum+=v*v; }
+  return Math.sqrt(sum/buf.length);
+}
+
+async function setupMic(){
+  micStream = await navigator.mediaDevices.getUserMedia({audio:true});
+  audioCtx = new (window.AudioContext||window.webkitAudioContext)();
+  const source = audioCtx.createMediaStreamSource(micStream);
+  analyser = new AnalyserNode(audioCtx,{fftSize:1024, smoothingTimeConstant:0.85});
+  source.connect(analyser);
+  timeData = new Uint8Array(analyser.fftSize);
+
+  // 1.5초 캘리브레이션
+  const samples=[];
+  const start=performance.now();
+  hint.style.display='block';
+  function collect(){
+    analyser.getByteTimeDomainData(timeData);
+    samples.push(rmsFromTimeData(timeData));
+    if(performance.now()-start<1500){ requestAnimationFrame(collect); }
+    else{
+      samples.sort((a,b)=>a-b);
+      const mid=samples[Math.floor(samples.length*0.5)]||0.02;
+      noiseFloor=Math.max(0.015, Math.min(0.08, mid));
+      hint.textContent='✅ 음성 반응 활성화됨';
+      setTimeout(()=>{hint.style.display='none'}, 1200);
+      animateSound();
+    }
+  }
+  collect();
+}
+
+function animateSound(){
+  analyser.getByteTimeDomainData(timeData);
+  const rms=rmsFromTimeData(timeData);
+  const now=performance.now();
+  const threshold=noiseFloor+0.035;
+  const minGap=140; // ms
+
+  if(rms>threshold && now-lastTrigger>minGap){
+    lastTrigger=now;
+    const headerCount=sheet.querySelector('thead tr').children.length;
+    const maxCols=Math.max(1, headerCount-1);
+    const startCol=1+Math.floor(Math.random()*maxCols);
+    const speed=70+Math.floor((rms-threshold)*1500);
+    waveSheetFromColumn(startCol, speed);
+  }
+  requestAnimationFrame(animateSound);
+}
+
+/* ===== 초기화 & 버튼 ===== */
+initSheetColumns(MAX_COLS); // 1~18 열 미리 생성
+
+document.getElementById('startBtn').addEventListener('click',async()=>{
+  try{
+    await setupMic();
+    startSR();
+  }catch(e){
+    alert('마이크 권한이 필요합니다.');
+    console.error(e);
+  }
+});
+document.getElementById('printBtn').addEventListener('click',()=>window.print());
+</script>
+
+</body>
+</html>
